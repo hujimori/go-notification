@@ -19,26 +19,32 @@ func main() {
 
 	var wg sync.WaitGroup
 	wg.Add(2)
-
 	// メッセージを受信する
 	go func() {
 		defer wg.Done()
-		m1 := <-ch[0]
-		fmt.Println("m1の内容")
-		fmt.Printf("%s\n", m1.ID)
-		fmt.Printf("%s\n", m1.Text)
+
+		for m1 := range ch[0] {
+			fmt.Println("m1の内容")
+			fmt.Printf("%s\n", m1.ID)
+			fmt.Printf("%s\n", m1.Text)
+		}
 	}()
 
 	go func() {
 		defer wg.Done()
-		m2 := <-ch[1]
-		fmt.Println("m2の内容")
-		fmt.Printf("%s\n", m2.ID)
-		fmt.Printf("%s\n", m2.Text)
+		for m2 := range ch[1] {
+			fmt.Println("m2の内容")
+			fmt.Printf("%s\n", m2.ID)
+			fmt.Printf("%s\n", m2.Text)
+		}
 	}()
 
 	// メッセージを送る
-	br.Publish(pubsub.Event{ID: "100", Text: "メッセージ"})
+	br.Publish(pubsub.Event{ID: "100", Text: "a"})
+	br.Publish(pubsub.Event{ID: "200", Text: "b"})
+	br.Publish(pubsub.Event{ID: "300", Text: "c"})
+
+	br.Close()
 
 	wg.Wait()
 
