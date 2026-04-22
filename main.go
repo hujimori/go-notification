@@ -18,26 +18,22 @@ func main() {
 	br.Subscribe(ch[1])
 
 	var wg sync.WaitGroup
-	wg.Add(2)
-	// メッセージを受信する
-	go func() {
-		defer wg.Done()
 
+	wg.Go(func() {
 		for m1 := range ch[0] {
 			fmt.Println("m1の内容")
 			fmt.Printf("%s\n", m1.ID)
 			fmt.Printf("%s\n", m1.Text)
 		}
-	}()
+	}) // メッセージを受信する
 
-	go func() {
-		defer wg.Done()
+	wg.Go(func() {
 		for m2 := range ch[1] {
 			fmt.Println("m2の内容")
 			fmt.Printf("%s\n", m2.ID)
 			fmt.Printf("%s\n", m2.Text)
 		}
-	}()
+	})
 
 	// メッセージを送る
 	br.Publish(pubsub.Event{ID: "100", Text: "a"})
