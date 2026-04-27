@@ -9,18 +9,14 @@ import (
 func main() {
 	br := pubsub.NewBrocker()
 
-	ch := make([]chan pubsub.Event, 2)
-
-	ch[0] = make(chan pubsub.Event)
-	ch[1] = make(chan pubsub.Event)
-
-	br.Subscribe(ch[0])
-	br.Subscribe(ch[1])
+	sub1 := br.Subscribe()
+	sub2 := br.Subscribe()
+	br.Start()
 
 	var wg sync.WaitGroup
 
 	wg.Go(func() {
-		for m1 := range ch[0] {
+		for m1 := range sub1.Events() {
 			fmt.Println("m1の内容")
 			fmt.Printf("%s\n", m1.ID)
 			fmt.Printf("%s\n", m1.Text)
@@ -28,7 +24,7 @@ func main() {
 	}) // メッセージを受信する
 
 	wg.Go(func() {
-		for m2 := range ch[1] {
+		for m2 := range sub2.Events() {
 			fmt.Println("m2の内容")
 			fmt.Printf("%s\n", m2.ID)
 			fmt.Printf("%s\n", m2.Text)
