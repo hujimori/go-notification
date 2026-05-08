@@ -1,19 +1,36 @@
 package subscriber
 
-import "go-notification/pubsub"
+import (
+	"go-notification/pubsub"
+	"sync"
+)
 
-type Subscriber struct {
-	br *pubsub.Broker
-	s  *pubsub.Subscriber
+var wg sync.WaitGroup
+
+type Service struct {
+	br      *pubsub.Broker
+	handler func(pubsub.Event)
+	wg      sync.WaitGroup
 }
 
-func NewSubscriber(br *pubsub.Broker) *Subscriber {
-	return &Subscriber{
-		br: br,
+func NewService(br *pubsub.Broker, handler func(pubsub.Event)) *Service {
+	return &Service{
+		br:      br,
+		handler: handler,
 	}
 }
 
-func (s *Subscriber) Subscribe() *Subscriber {
-	s.s = s.br.Subscribe()
-	return s
+func (s *Service) Start() {
+	s.wg.Go(func() {
+		for e := range s.br.Subscribe().Events() {
+			s.handler(e)
+		}
+	})
+}
+func (s *Service) Wait() {
+	s.wg.Wait()
+}
+
+func (s *Service) Stop() {
+
 }
