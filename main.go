@@ -12,6 +12,7 @@ func main() {
 	sub1 := br.Subscribe()
 	sub2 := br.Subscribe()
 	br.Start()
+	br.Unsubscribe(sub1)
 
 	var wg sync.WaitGroup
 
@@ -35,6 +36,10 @@ func main() {
 	br.Publish(pubsub.Event{ID: "100", Text: "a"})
 	br.Publish(pubsub.Event{ID: "200", Text: "b"})
 	br.Publish(pubsub.Event{ID: "300", Text: "c"})
+
+	// レースコンディジョンを起こす
+	// go br.Publish(pubsub.Event{ID: "300", Text: "c"})
+	// go br.Subscribe()
 
 	br.Close()
 
